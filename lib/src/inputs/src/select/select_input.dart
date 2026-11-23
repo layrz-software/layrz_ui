@@ -197,7 +197,8 @@ class LayrzSelectInput<T> extends StatefulWidget {
   /// spacing level: 10px compact, 6px regular. No other dimension changes.
   final bool dense;
 
-  /// Defines the expected height of the items in the list.
+  /// Minimum height of each item row in the picker; a row grows taller when its
+  /// content wraps, so long labels are always shown in full.
   final double itemExtent;
 
   /// Creates a new [LayrzSelectInput] with the given properties.
@@ -549,9 +550,12 @@ class _LayrzSelectInputState<T> extends State<LayrzSelectInput<T>> {
                                     child: OverflowBox(
                                       alignment: Alignment.centerLeft,
                                       maxWidth: double.infinity,
-                                      child: DefaultTextStyle(
-                                        style: context.bodyStyle,
-                                        child: selectedItem.child,
+                                      // Bounds flex children to their natural width so `Expanded` works here too.
+                                      child: IntrinsicWidth(
+                                        child: DefaultTextStyle(
+                                          style: context.bodyStyle,
+                                          child: selectedItem.child,
+                                        ),
                                       ),
                                     ),
                                   ),

@@ -69,7 +69,7 @@ class LayrzSelectInputSurface<T> extends StatefulWidget {
   /// This is used when the surface is displayed in an anchored panel on desktop.
   final MenuController? panelController;
 
-  /// Defines the expected height of each item in the list.
+  /// Minimum height of each item row; a row grows taller when its content wraps.
   final double itemExtent;
 
   /// Creates a new [LayrzSelectInputSurface].
@@ -388,11 +388,11 @@ class _LayrzSelectInputSurfaceState<T> extends State<LayrzSelectInputSurface<T>>
       // itself, between its viewport top and the first `KeyedSubtree`.
       listOrEmptyState = ListView.builder(
         padding: EdgeInsets.zero,
-        itemExtent: widget.itemExtent,
         itemCount: _filteredItems.length,
         itemBuilder: (context, index) {
           return _SelectItemRow(
             key: ValueKey(_filteredItems[index].value),
+            minHeight: widget.itemExtent,
             item: _filteredItems[index],
             isHighlighted: _highlightedIndex == index,
             isSelected: _filteredItems[index] == widget.selectedItem,
@@ -447,9 +447,11 @@ class _SelectItemRow<T> extends StatelessWidget {
   final bool isHighlighted;
   final bool isSelected;
   final VoidCallback onTap;
+  final double minHeight;
 
   const _SelectItemRow({
     super.key,
+    required this.minHeight,
     required this.item,
     required this.isHighlighted,
     required this.isSelected,
@@ -481,6 +483,7 @@ class _SelectItemRow<T> extends StatelessWidget {
       child: LayrzTappable(
         onTap: onTap,
         child: Container(
+          constraints: BoxConstraints(minHeight: minHeight),
           color: backgroundColor,
           padding: EdgeInsets.symmetric(
             horizontal: tokens.spacing.sp2,

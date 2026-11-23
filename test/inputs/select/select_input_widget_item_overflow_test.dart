@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,6 +17,8 @@ import '../../helpers/pump_themed_app.dart';
 /// wide child is clipped to the field rather than throwing a `RenderFlex`
 /// overflow. These tests assert on the absence of a render exception, not on
 /// reading the source.
+int _lineCount(RenderParagraph p) => (p.size.height / p.getFullHeightForCaret(const TextPosition(offset: 0))).round();
+
 void main() {
   group('LayrzSelectInput closed field — wide widget item does not overflow', () {
     // The selected item's presentation is a Row with an icon and a long label,
@@ -89,5 +92,77 @@ void main() {
       // wide child paints clipped rather than overflowing.
       expect(find.byType(ClipRect), findsWidgets);
     });
+  });
+
+  group('LayrzSelectInput — Row + Flexible label item works in field and picker', () {
+    const longLabel = '[AllTank Systems] Acesso à exportação do relatório de fechamento de balsa com todas as colunas';
+
+    final shapes = <String, Widget Function(String)>{
+      'min Row + Flexible': (text) => Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 8,
+        children: [
+          Icon(MdiIcons.shieldAccount, size: 20),
+          Flexible(child: Text(text)),
+        ],
+      ),
+      'Row + Expanded': (text) => Row(
+        spacing: 8,
+        children: [
+          Icon(MdiIcons.shieldAccount, size: 20),
+          Expanded(child: Text(text)),
+        ],
+      ),
+    };
+
+    for (final MapEntry(key: shape, value: flexibleChild) in shapes.entries) {
+      for (final size in const [Size(1600, 1200), Size(400, 800)]) {
+        testWidgets('$shape renders without error and wraps only in the picker at $size', (tester) async {
+          tester.view.physicalSize = size;
+          tester.view.devicePixelRatio = 1.0;
+          addTearDown(tester.view.reset);
+
+          await pumpThemedApp(
+            tester,
+            Center(
+              child: SizedBox(
+                width: 300,
+                child: LayrzSelectInput<String>(
+                  itemExtent: 52,
+                  labelText: 'Categoria',
+                  value: 'long',
+                  items: [
+                    LayrzSelectItem<String>(
+                      value: 'long',
+                      searchableStrings: const {longLabel},
+                      child: flexibleChild(longLabel),
+                    ),
+                    LayrzSelectItem<String>(
+                      value: 'u',
+                      searchableStrings: const {'Universal'},
+                      child: flexibleChild('Universal'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+
+          expect(tester.takeException(), isNull);
+          final fieldParagraph = tester.renderObject<RenderParagraph>(find.text(longLabel));
+          expect(_lineCount(fieldParagraph), 1, reason: 'the closed field keeps the label on one line');
+
+          await tester.tap(find.byType(LayrzSelectInput<String>));
+          await tester.pumpAndSettle();
+
+          expect(tester.takeException(), isNull);
+          final pickerParagraphs = tester
+              .renderObjectList<RenderParagraph>(find.text(longLabel))
+              .where((p) => _lineCount(p) > 1);
+          expect(pickerParagraphs, isNotEmpty, reason: 'the picker wraps the label to show it in full');
+          expect(pickerParagraphs.first.didExceedMaxLines, isFalse);
+        });
+      }
+    }
   });
 }

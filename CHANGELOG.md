@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.12.1
+
+- Fixed: `LayrzSelectInput` picker rows no longer cut off long items. `itemExtent` is now the minimum row height instead of a fixed one, so an item whose `child` wraps grows to show its full content. Short items keep their previous height.
+- Fixed: a `LayrzSelectInput` item whose `child` is a `Row` with an `Expanded` (or tight `Flexible`) label no longer throws in the closed field. The field now lays the selected `child` out at its natural width, so the same `Row` + `Flexible`/`Expanded` label shows on one line in the field and wraps in the picker.
+
 ## 1.12.0
 
 - `LayrzLayout` accepts `railWidth` (default `kLayrzLayoutRailWidth`, 220) to widen the navigation rail in expanded presentation; the body is inset by the same amount. The drawer width is unchanged.

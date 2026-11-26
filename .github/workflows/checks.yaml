@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: goldenm-software/layrz-actions/.github/actions/check-dart@v1
+      - uses: layrz-software/layrz-actions/.github/actions/check-dart@v1
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           run-checks: true
@@ -111,13 +111,13 @@ jobs:
           cache-sdk: true
           cache-key: ${{ runner.os }}-flutter-${{ hashFiles('pubspec.yaml') }}
 
-      - uses: goldenm-software/layrz-actions/.github/actions/coverage-comment@v1
+      - uses: layrz-software/layrz-actions/.github/actions/coverage-comment@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           enable-dart: true
           dart-coverage-path: dart-coverage/lcov.info
 
-      - uses: goldenm-software/layrz-actions/.github/actions/coverage-check@v1
+      - uses: layrz-software/layrz-actions/.github/actions/coverage-check@v1
         with:
           enable-dart: true
           dart-coverage-path: dart-coverage/lcov.info
@@ -129,7 +129,7 @@ jobs:
       - uses: actions/checkout@v6
         with: { fetch-depth: 0 }
 
-      - uses: goldenm-software/layrz-actions/.github/actions/changelog@v1
+      - uses: layrz-software/layrz-actions/.github/actions/changelog@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           post-comment: true
